@@ -1,0 +1,13 @@
+# 真实采集残渣与测试批次，不得进公开库
+_tmp/
+提交/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# 系统
+Thumbs.db
+.DS_Store
+desktop.ini

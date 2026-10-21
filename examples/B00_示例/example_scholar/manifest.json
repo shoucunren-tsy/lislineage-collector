@@ -1,0 +1,116 @@
+{
+  "contract_version": "1.0.0",
+  "batch": "B00",
+  "collector": "示例采集人",
+  "scholar_id": "example_scholar",
+  "scholar_name": "示例学者",
+  "submitted_at": "2026-10-21",
+  "coverage": {
+    "papers_cn": "B",
+    "papers_intl": "A",
+    "career": "B",
+    "activities": "B",
+    "relations": "B",
+    "books": "B"
+  },
+  "boundaries": [
+    "知网需登录，中文被引仅取到来源页可见的一条，其余保持 unknown",
+    "示例研究院网站改版，2018 年受聘公告原文未取到，仅保留检索线索"
+  ],
+  "gaps": [
+    "外文会议论文未覆盖",
+    "著作版权页快照未补"
+  ],
+  "files": [
+    {
+      "name": "activities.csv",
+      "rows": 2,
+      "bytes": 533,
+      "sha256": "13128e34802aff9e4b776e60d5caef2d41fe7ee402a4ed499cbdaa03beac9166"
+    },
+    {
+      "name": "audit.csv",
+      "rows": 8,
+      "bytes": 1040,
+      "sha256": "232f748d055159e2a6e7cd3d25e8ff242d38ce35673050b27e6b64b923227bb3"
+    },
+    {
+      "name": "books.csv",
+      "rows": 1,
+      "bytes": 225,
+      "sha256": "c9943fe73f4eb49383479c2f5a2d12c243f70cf9bb55e95efffd715cc7628b1f"
+    },
+    {
+      "name": "career.csv",
+      "rows": 3,
+      "bytes": 621,
+      "sha256": "9e8e0a949eb93b44a949782cf261e7a3d1c2f95053929d51741339e159bb7a15"
+    },
+    {
+      "name": "evidence/S001.html",
+      "rows": 0,
+      "bytes": 504,
+      "sha256": "1d6be0311623bfd58ca4ecef237e70894ff2b46708686f337b9b8a118d135d96"
+    },
+    {
+      "name": "evidence/S002.json",
+      "rows": 0,
+      "bytes": 352,
+      "sha256": "c05d8f58f36a47442edeedda0f06734c0ea5338d91cd7599f811fd395bb8021f"
+    },
+    {
+      "name": "evidence/S003.html",
+      "rows": 0,
+      "bytes": 362,
+      "sha256": "097bd7db28402bbd47db0166f494e61a05f56f3923d7871c2064d9539626df1c"
+    },
+    {
+      "name": "evidence/S004.html",
+      "rows": 0,
+      "bytes": 329,
+      "sha256": "323c0967119b43ce6d8ebb011d1a53078cc7007b1fe60a1fdda97258e84428b4"
+    },
+    {
+      "name": "papers_cn.csv",
+      "rows": 2,
+      "bytes": 822,
+      "sha256": "eb805bd9d8163e58e8c5e722188d6996c5166e3e7a5da9bbd77d94b16022e7cc"
+    },
+    {
+      "name": "papers_intl.csv",
+      "rows": 1,
+      "bytes": 461,
+      "sha256": "74d56299edd52945eac9f5719b9901b97883fffd7bb2eb55df0f572f3dcedcdb"
+    },
+    {
+      "name": "profile.csv",
+      "rows": 1,
+      "bytes": 427,
+      "sha256": "a52b01a2a63999b761738d337d2e64796b5892fda5a4cad18a1cf2c1623d9a02"
+    },
+    {
+      "name": "rejects.csv",
+      "rows": 1,
+      "bytes": 243,
+      "sha256": "c2d3eca4d10c4c39febcc7c4ad7c43925ecd1b7a8fa7a55d2018d6040f8d8baa"
+    },
+    {
+      "name": "relations.csv",
+      "rows": 1,
+      "bytes": 263,
+      "sha256": "16900eea42d9cf0ecdc40dee01bd89d504fcd47f2f95f3d704e5bec8ab0f5e2b"
+    },
+    {
+      "name": "report.md",
+      "rows": 0,
+      "bytes": 2465,
+      "sha256": "050ec55a898a9c61aeaab3c1561aea209118858c23775aacfa9c014236166893"
+    },
+    {
+      "name": "sources.csv",
+      "rows": 7,
+      "bytes": 1067,
+      "sha256": "b1051af0d95a27fdc5a15f310f5efb7d6fa0b6cce71ed037c98de6203c4e6dfa"
+    }
+  ]
+}

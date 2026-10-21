@@ -1,0 +1,2 @@
+﻿relation_id,scholar_id,other_name,other_scholar_id,relation_type,start,end,evidence_url,source_id,excerpt,notes
+R001,example_scholar,导师范,,博士师承,1994,1997,https://example.edu.cn/faculty/xuezhe,S001,师从导师范教授。,本学者为被指导方

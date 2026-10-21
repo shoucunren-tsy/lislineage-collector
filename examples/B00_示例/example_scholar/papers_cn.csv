@@ -1,0 +1,3 @@
+﻿paper_id,scholar_id,title,authors,journal,year,volume,issue,pages,doi,url,db_source,source_id,excerpt,cited,cited_source,cited_url,cited_date,cited_status,action,notes
+P001,example_scholar,文献计量方法研究,示例学者|合作者甲,示例学报,2021,40,3,45-58,10.1234/abcd.2021.003,https://example.edu.cn/journal/2021-3#p1,期刊官网,S003,"示例学者, 合作者甲. 文献计量方法研究[J]. 示例学报, 2021, 40(3): 45-58.",12,知网,https://example.com/cited/P001,2026-10-21,verified,new,
+P002,example_scholar,学术评价指标研究,示例学者,示例学报,2021,40,3,59-70,10.1234/abcd.2021.004,https://example.edu.cn/journal/2021-3#p2,期刊官网,S003,"示例学者. 学术评价指标研究[J]. 示例学报, 2021, 40(3): 59-70.",,知网,,,unknown,new,知网需登录，未取到被引计数

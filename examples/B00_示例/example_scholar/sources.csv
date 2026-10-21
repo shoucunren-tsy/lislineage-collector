@@ -1,0 +1,8 @@
+﻿source_id,source_type,source_tier,title,publisher,url,accessed_at,snapshot,notes
+S001,官方主页,一手,示例学者-师资队伍,示例大学信息管理学院,https://example.edu.cn/faculty/xuezhe,2026-10-21,evidence/S001.html,
+S002,OpenAlex,一手,OpenAlex author record,OpenAlex,https://openalex.org/authors/A5023888391,2026-10-21,evidence/S002.json,
+S003,期刊官网,一手,示例学报2021年第3期目次,示例学报编辑部,https://example.edu.cn/journal/2021-3,2026-10-21,evidence/S003.html,
+S004,新闻,一手,示例计量学术论坛在示例大学举行,示例大学信息管理学院,https://example.edu.cn/news/2026-05-10,2026-10-21,evidence/S004.html,
+S005,出版社,一手,示例专著版权页,示例大学出版社,https://example.edu.cn/press/978-7-0000-0000-0,2026-10-21,,快照待补
+S006,新闻,一手,示例研究院首批聘任名单,示例研究院,https://example.org/news/2018-03-15,2026-10-21,,
+S007,微信公众号,一手,示例学会2025年度优秀成果奖公布,示例学会,https://example.org/wechat/2025-award,2026-10-21,,

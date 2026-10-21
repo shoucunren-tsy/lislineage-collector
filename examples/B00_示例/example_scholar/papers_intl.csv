@@ -1,0 +1,2 @@
+﻿paper_id,scholar_id,title,authors,venue,venue_type,language,year,volume,issue,pages,doi,url,db_source,source_id,excerpt,cited,cited_source,cited_url,cited_date,cited_status,action,notes
+P003,example_scholar,Mapping Research Fronts,Shili Xuezhe|Coauthor B,Example Journal of Metrics,journal,en,2019,5,2,100-120,10.1234/efg.2019.007,https://openalex.org/works/W123,OpenAlex,S002,Shili Xuezhe,7,OpenAlex,https://openalex.org/works/W123,2026-10-21,verified,new,

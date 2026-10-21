@@ -1,0 +1,261 @@
+{
+  "contract_version": "1.0.0",
+  "updated_at": "2026-10-21",
+  "folder_rule": {
+    "scholar_id": "^[a-z][a-z0-9_]{2,31}$",
+    "note": "一个学者一个文件夹，文件夹名=scholar_id=各表 scholar_id 列=manifest.scholar_id。多学者批次放在同一个批次目录下并列。"
+  },
+  "required_files": [
+    "profile.csv",
+    "sources.csv",
+    "career.csv",
+    "papers_cn.csv",
+    "papers_intl.csv",
+    "activities.csv",
+    "relations.csv",
+    "books.csv",
+    "rejects.csv",
+    "audit.csv",
+    "manifest.json",
+    "report.md",
+    "evidence"
+  ],
+  "files": {
+    "profile.csv": {
+      "kind": "csv",
+      "rows": "exactly_one",
+      "purpose": "学者身份与归属信息",
+      "columns": [
+        {"name": "scholar_id", "required": true, "desc": "站点稳定ID，全小写英文数字下划线，见 folder_rule"},
+        {"name": "name_cn", "required": true, "desc": "中文姓名，与官方页面一致"},
+        {"name": "name_en", "required": false, "desc": "英文姓名或拼音，官方页面写法优先"},
+        {"name": "name_variants", "required": false, "desc": "曾用名/异体写法/检索变体，用 | 分隔，例如 冯惠玲|Feng Huiling"},
+        {"name": "institution", "required": true, "desc": "当前主要任职机构全称"},
+        {"name": "department", "required": false, "desc": "院系/部门全称"},
+        {"name": "role", "required": false, "desc": "职务职称，如 教授、研究员、博士生导师；多项用 | 分隔"},
+        {"name": "research_fields", "required": false, "desc": "研究方向，用 、 分隔，优先照抄官方表述"},
+        {"name": "homepage", "required": false, "desc": "官方个人主页 URL"},
+        {"name": "orcid", "required": false, "desc": "ORCID，形如 0000-0002-1825-0097"},
+        {"name": "openalex_id", "required": false, "desc": "OpenAlex 作者ID，形如 A5023888391"},
+        {"name": "intro_zh", "required": false, "desc": "150字以内客观简介，只写来源可证事实，不写评价"}
+      ]
+    },
+    "sources.csv": {
+      "kind": "csv",
+      "rows": "many",
+      "purpose": "来源登记表。其他表用 source_id 引用这里，逐条可溯源",
+      "columns": [
+        {"name": "source_id", "required": true, "desc": "本学者内唯一编号，S001 起，不改不重"},
+        {"name": "source_type", "required": true, "enum": "source_type", "desc": "来源类型"},
+        {"name": "source_tier", "required": true, "enum": "source_tier", "desc": "一手=原始出处；二手=转载/聚合/百科"},
+        {"name": "title", "required": true, "desc": "页面或文件标题，照抄原标题"},
+        {"name": "publisher", "required": false, "desc": "发布方，如 中国人民大学信息资源管理学院"},
+        {"name": "url", "required": true, "desc": "可访问的完整 URL，http/https 开头；无 URL 的纸质资料写馆藏或出处描述"},
+        {"name": "accessed_at", "required": true, "desc": "访问日期 YYYY-MM-DD"},
+        {"name": "snapshot", "required": false, "desc": "证据快照相对路径，如 evidence/S001.html"},
+        {"name": "notes", "required": false, "desc": "访问限制、页面语言、需登录等说明"}
+      ]
+    },
+    "career.csv": {
+      "kind": "csv",
+      "rows": "many",
+      "purpose": "教育与任职时间线",
+      "columns": [
+        {"name": "career_id", "required": true, "desc": "C001 起唯一编号"},
+        {"name": "scholar_id", "required": true, "desc": "必须与文件夹名一致"},
+        {"name": "start", "required": false, "desc": "开始时间 YYYY 或 YYYY-MM 或 YYYY-MM-DD；未知留空并在 notes 说明"},
+        {"name": "end", "required": false, "desc": "结束时间，格式同 start；在职写 至今；单点事件 start=end"},
+        {"name": "institution", "required": true, "desc": "机构全称"},
+        {"name": "department", "required": false, "desc": "院系/专业"},
+        {"name": "degree_or_role", "required": true, "desc": "学位（本科/硕士/博士/博士后）或职务职称"},
+        {"name": "advisor", "required": false, "desc": "导师姓名，仅官方明确写出的才填"},
+        {"name": "source_id", "required": true, "desc": "指向 sources.csv；status=unknown 时可为空"},
+        {"name": "excerpt", "required": true, "desc": "支撑该段经历的原句摘录，逐字照抄，至少6字；status=unknown 时可为空"},
+        {"name": "status", "required": true, "enum": "career_status", "desc": "confirmed=一手来源明确；candidate=线索待核；unknown=渠道都查不到"},
+        {"name": "notes", "required": false, "desc": "冲突、口径、不确定点必须写在这里"}
+      ]
+    },
+    "papers_cn.csv": {
+      "kind": "csv",
+      "rows": "many",
+      "purpose": "中文论文题录",
+      "columns": [
+        {"name": "paper_id", "required": true, "desc": "P001 起唯一编号"},
+        {"name": "scholar_id", "required": true, "desc": "必须与文件夹名一致"},
+        {"name": "title", "required": true, "desc": "论文标题，照抄，不改写"},
+        {"name": "authors", "required": true, "desc": "完整作者序列，用 | 分隔，保持原顺序；必须包含本学者"},
+        {"name": "journal", "required": true, "desc": "期刊全称"},
+        {"name": "year", "required": true, "desc": "出版年四位数字；确实无年份时留空且 notes 以「缺年:」开头"},
+        {"name": "volume", "required": false, "desc": "卷"},
+        {"name": "issue", "required": false, "desc": "期"},
+        {"name": "pages", "required": false, "desc": "起止页或文章号，如 45-58"},
+        {"name": "doi", "required": false, "desc": "DOI，不带 https://doi.org/ 前缀"},
+        {"name": "url", "required": false, "desc": "可访问的题录页或全文页"},
+        {"name": "db_source", "required": true, "enum": "paper_db", "desc": "这条题录实际看到的来源类型"},
+        {"name": "source_id", "required": true, "desc": "指向 sources.csv 的来源编号"},
+        {"name": "excerpt", "required": true, "desc": "来源页面上能证明本题录的原句，至少6字"},
+        {"name": "cited", "required": false, "desc": "被引次数，非负整数；未知/受限必须留空，绝不填0"},
+        {"name": "cited_source", "required": false, "desc": "被引数据来源，如 知网、万方、OpenAlex"},
+        {"name": "cited_url", "required": false, "desc": "被引数据所在页面"},
+        {"name": "cited_date", "required": false, "desc": "被引数据抓取日期 YYYY-MM-DD"},
+        {"name": "cited_status", "required": true, "enum": "cited_status", "desc": "被引数据状态，见 references/sourcing-rules.md"},
+        {"name": "action", "required": true, "enum": "paper_action", "desc": "new=新增；correction=订正站内已有记录"},
+        {"name": "notes", "required": false, "desc": "归属疑点、同名排除、页码缺失等"}
+      ]
+    },
+    "papers_intl.csv": {
+      "kind": "csv",
+      "rows": "many",
+      "purpose": "外文论文题录（英文为主，也收日文/韩文等非中文文献）",
+      "columns": [
+        {"name": "paper_id", "required": true, "desc": "P001 起唯一编号，与 papers_cn 不重号"},
+        {"name": "scholar_id", "required": true, "desc": "必须与文件夹名一致"},
+        {"name": "title", "required": true, "desc": "原文标题，照抄"},
+        {"name": "authors", "required": true, "desc": "完整作者序列，用 | 分隔；必须包含本学者"},
+        {"name": "venue", "required": true, "desc": "期刊/会议/出版社名称全称"},
+        {"name": "venue_type", "required": true, "enum": "venue_type", "desc": "载体类型"},
+        {"name": "language", "required": true, "enum": "language", "desc": "文献语言"},
+        {"name": "year", "required": true, "desc": "出版年四位数字；确实无年份时留空且 notes 以「缺年:」开头"},
+        {"name": "volume", "required": false, "desc": "卷"},
+        {"name": "issue", "required": false, "desc": "期"},
+        {"name": "pages", "required": false, "desc": "起止页或文章号"},
+        {"name": "doi", "required": false, "desc": "DOI，不带前缀"},
+        {"name": "url", "required": false, "desc": "题录页或全文页"},
+        {"name": "db_source", "required": true, "enum": "paper_db", "desc": "题录实际看到的来源类型"},
+        {"name": "source_id", "required": true, "desc": "指向 sources.csv"},
+        {"name": "excerpt", "required": true, "desc": "来源页面上能证明本题录的原句，至少6字"},
+        {"name": "cited", "required": false, "desc": "被引次数，非负整数；未知/受限留空，绝不填0"},
+        {"name": "cited_source", "required": false, "desc": "被引数据来源"},
+        {"name": "cited_url", "required": false, "desc": "被引数据所在页面"},
+        {"name": "cited_date", "required": false, "desc": "抓取日期 YYYY-MM-DD"},
+        {"name": "cited_status", "required": true, "enum": "cited_status", "desc": "被引数据状态"},
+        {"name": "action", "required": true, "enum": "paper_action", "desc": "new 或 correction"},
+        {"name": "notes", "required": false, "desc": "归属疑点、同名排除等"}
+      ]
+    },
+    "activities.csv": {
+      "kind": "csv",
+      "rows": "many",
+      "purpose": "活动动态：讲座、会议、获奖、评审、访谈、任职、学科建设等",
+      "columns": [
+        {"name": "activity_id", "required": true, "desc": "A001 起唯一编号"},
+        {"name": "scholar_id", "required": true, "desc": "必须与文件夹名一致"},
+        {"name": "date", "required": true, "desc": "活动日期 YYYY-MM-DD；只能确定到月/年时写 YYYY-MM / YYYY"},
+        {"name": "type", "required": true, "enum": "activity_type", "desc": "活动类型"},
+        {"name": "title", "required": true, "desc": "活动名称，照抄报道标题或活动名"},
+        {"name": "organizer", "required": false, "desc": "主办/承办方"},
+        {"name": "location", "required": false, "desc": "地点"},
+        {"name": "account_name", "required": false, "desc": "若来自微信公众号，写公众号名称"},
+        {"name": "article_title", "required": false, "desc": "原文标题（与活动名不同时填）"},
+        {"name": "article_url", "required": false, "desc": "原文链接"},
+        {"name": "source_id", "required": true, "desc": "指向 sources.csv"},
+        {"name": "excerpt", "required": true, "desc": "证明该学者参加/出现的原句，至少6字"},
+        {"name": "notes", "required": false, "desc": "转载关系、日期存疑等"}
+      ]
+    },
+    "relations.csv": {
+      "kind": "csv",
+      "rows": "many",
+      "purpose": "学术关系边：师承、合作、同事",
+      "columns": [
+        {"name": "relation_id", "required": true, "desc": "R001 起唯一编号"},
+        {"name": "scholar_id", "required": true, "desc": "必须与文件夹名一致"},
+        {"name": "other_name", "required": true, "desc": "关系人姓名"},
+        {"name": "other_scholar_id", "required": false, "desc": "对方在站内的ID，不确定留空"},
+        {"name": "relation_type", "required": true, "enum": "relation_type", "desc": "关系类型；师承类本学者是被指导方"},
+        {"name": "start", "required": false, "desc": "关系开始年 YYYY"},
+        {"name": "end", "required": false, "desc": "关系结束年 YYYY"},
+        {"name": "evidence_url", "required": false, "desc": "关系证据页面"},
+        {"name": "source_id", "required": true, "desc": "指向 sources.csv"},
+        {"name": "excerpt", "required": true, "desc": "证明该关系的原句，至少6字"},
+        {"name": "notes", "required": false, "desc": "方向、存疑、同名风险"}
+      ]
+    },
+    "books.csv": {
+      "kind": "csv",
+      "rows": "many",
+      "purpose": "专著、教材、译著、书章",
+      "columns": [
+        {"name": "book_id", "required": true, "desc": "B001 起唯一编号"},
+        {"name": "scholar_id", "required": true, "desc": "必须与文件夹名一致"},
+        {"name": "title", "required": true, "desc": "书名，照抄版权页"},
+        {"name": "subtitle", "required": false, "desc": "副标题"},
+        {"name": "publisher", "required": true, "desc": "出版社全称"},
+        {"name": "year", "required": true, "desc": "出版年四位数字"},
+        {"name": "isbn", "required": false, "desc": "ISBN，保留连字符或纯数字"},
+        {"name": "role", "required": true, "enum": "book_role", "desc": "责任方式"},
+        {"name": "coauthors", "required": false, "desc": "其他责任者，用 | 分隔"},
+        {"name": "source_id", "required": true, "desc": "指向 sources.csv"},
+        {"name": "excerpt", "required": true, "desc": "版权页或书目页原句，至少6字"},
+        {"name": "notes", "required": false, "desc": "版次、丛书、与章节拆分关系"}
+      ]
+    },
+    "rejects.csv": {
+      "kind": "csv",
+      "rows": "many",
+      "purpose": "排除项登记。凡查过但判定不属于本人的，必须留痕，防止下一批重复劳动",
+      "columns": [
+        {"name": "reject_id", "required": true, "desc": "X001 起唯一编号"},
+        {"name": "scholar_id", "required": true, "desc": "必须与文件夹名一致"},
+        {"name": "object_type", "required": true, "enum": "reject_object", "desc": "被排除对象的类型"},
+        {"name": "identifier", "required": true, "desc": "DOI/URL/年份+题名等可定位标识"},
+        {"name": "title", "required": false, "desc": "对象标题"},
+        {"name": "reason", "required": true, "enum": "reject_reason", "desc": "排除原因代码"},
+        {"name": "evidence", "required": true, "desc": "排除依据的原句或链接"},
+        {"name": "status", "required": true, "enum": "reject_status", "desc": "rejected=已定排除；pending=仍存疑"},
+        {"name": "notes", "required": false, "desc": "补充说明"}
+      ]
+    },
+    "audit.csv": {
+      "kind": "csv",
+      "rows": "many",
+      "purpose": "检索审计。记录每个渠道查了什么、返回多少、是否翻到最后一页",
+      "columns": [
+        {"name": "audit_id", "required": true, "desc": "Q001 起唯一编号"},
+        {"name": "scholar_id", "required": true, "desc": "必须与文件夹名一致"},
+        {"name": "dimension", "required": true, "enum": "audit_dimension", "desc": "本次检索覆盖的数据维度"},
+        {"name": "channel", "required": true, "desc": "渠道名称，如 OpenAlex Author、知网作者检索、学院官网、微信公众号"},
+        {"name": "query", "required": true, "desc": "实际检索式或URL，照实写"},
+        {"name": "date", "required": true, "desc": "检索日期 YYYY-MM-DD"},
+        {"name": "total", "required": false, "desc": "渠道报告的总数；渠道不提供则留空"},
+        {"name": "returned", "required": true, "desc": "实际取回的条目数"},
+        {"name": "unique_ids", "required": true, "desc": "去重后的唯一ID数"},
+        {"name": "last_page", "required": true, "enum": "boolean_text", "desc": "是否翻到最后一页 true/false"},
+        {"name": "closure", "required": true, "enum": "audit_closure", "desc": "closed=已闭合；open=未闭合必须写note"},
+        {"name": "note", "required": false, "desc": "未闭合原因、渠道限制、403/WAF、验证码等"}
+      ]
+    }
+  },
+  "enums": {
+    "source_type": ["官方主页", "院系页", "个人主页", "ORCID", "OpenAlex", "Crossref", "期刊官网", "数据库", "新闻", "微信公众号", "会议官网", "学位论文库", "出版社", "其他"],
+    "source_tier": ["一手", "二手"],
+    "career_status": ["confirmed", "candidate", "unknown"],
+    "paper_action": ["new", "correction"],
+    "paper_db": ["期刊官网", "知网", "万方", "维普", "国家哲学社会科学文献中心", "OpenAlex", "Crossref", "会议官网", "出版社", "其他"],
+    "venue_type": ["journal", "conference", "book_chapter", "preprint"],
+    "language": ["en", "ja", "ko", "other"],
+    "cited_status": ["verified", "recorded_value", "verified_zero", "unknown", "blocked"],
+    "activity_type": ["讲座", "会议", "获奖", "评审", "任职", "访谈", "悼念", "学科建设", "培训", "其他"],
+    "relation_type": ["博士师承", "硕士师承", "博士后", "合著", "同事", "其他"],
+    "book_role": ["独著", "第一作者", "合著", "主编", "副主编", "参编", "译著", "章节"],
+    "reject_object": ["paper", "career", "activity", "relation", "book", "profile"],
+    "reject_reason": ["同名不同人", "导师署名误挂", "媒体稿非论文", "连载拆分", "书籍章节重复计算", "作者列表无本人", "聚合页无原始出处", "主题不符", "身份未确认", "其他"],
+    "reject_status": ["rejected", "pending"],
+    "audit_dimension": ["papers_cn", "papers_intl", "career", "activities", "relations", "books"],
+    "audit_closure": ["closed", "open"],
+    "boolean_text": ["true", "false"],
+    "coverage_level": ["A", "B", "C"]
+  },
+  "manifest": {
+    "required_keys": ["contract_version", "batch", "collector", "scholar_id", "scholar_name", "submitted_at", "coverage", "boundaries", "gaps", "files"],
+    "coverage_keys": ["papers_cn", "papers_intl", "career", "activities", "relations", "books"]
+  },
+  "forbidden_claims": ["全部收齐", "已收齐", "收齐", "穷尽", "完整收录", "无遗漏", "一网打尽", "全部收录", "应收尽收", "完整覆盖", "全部找齐", "无一遗漏"],
+  "negation_markers": ["不", "未", "无", "非", "没", "勿", "禁", "避免", "谈不上", "算不上", "不敢", "无法", "难以"],
+  "placeholder_values": ["待填写", "TODO", "todo", "xxx", "XXX", "示例填写", "待补"],
+  "coverage_definition": {
+    "A": "已覆盖该类资料的可检索主渠道，且每个渠道翻到最后一页或闭合；边界在报告写清",
+    "B": "覆盖主要渠道但至少一个渠道未闭合，或存在明确受限来源",
+    "C": "仅做探索性检索，不保证覆盖，只能作线索"
+  }
+}

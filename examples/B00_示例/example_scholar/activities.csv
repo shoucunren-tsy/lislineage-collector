@@ -1,0 +1,3 @@
+﻿activity_id,scholar_id,date,type,title,organizer,location,account_name,article_title,article_url,source_id,excerpt,notes
+A001,example_scholar,2026-05-10,会议,示例计量学术论坛,示例大学,示例市,,,https://example.edu.cn/news/2026-05-10,S004,示例学者作大会主旨报告。,
+A002,example_scholar,2025-11-20,获奖,示例学会2025年度优秀成果奖,示例学会,示例市,示例学会,示例学会2025年度优秀成果奖公布,https://example.org/wechat/2025-award,S007,示例学者的成果获一等奖。,

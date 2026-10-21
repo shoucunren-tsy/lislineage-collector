@@ -1,0 +1,9 @@
+﻿audit_id,scholar_id,dimension,channel,query,date,total,returned,unique_ids,last_page,closure,note
+Q001,example_scholar,papers_cn,期刊官网,https://example.edu.cn/journal/2021-3,2026-10-21,2,2,2,true,closed,
+Q002,example_scholar,papers_cn,知网作者检索,作者=示例学者,2026-10-21,,0,0,false,open,需登录，未取到结果页
+Q003,example_scholar,papers_intl,OpenAlex Author,https://api.openalex.org/works?filter=author.id:A5023888391,2026-10-21,1,1,1,true,closed,
+Q004,example_scholar,career,学院官网,https://example.edu.cn/faculty/xuezhe,2026-10-21,1,1,1,true,closed,
+Q005,example_scholar,career,示例研究院官网,site:example.org 示例学者 聘任,2026-10-21,,0,0,false,open,页面改版，未找到受聘公告原文
+Q006,example_scholar,activities,学院新闻,"site:example.edu.cn ""示例学者""",2026-10-21,2,2,2,true,closed,
+Q007,example_scholar,relations,学院官网,导师信息,2026-10-21,1,1,1,true,closed,
+Q008,example_scholar,books,出版社书目,作者=示例学者,2026-10-21,1,1,1,true,closed,

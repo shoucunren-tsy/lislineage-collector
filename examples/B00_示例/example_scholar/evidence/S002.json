@@ -1,0 +1,14 @@
+{
+  "id": "https://openalex.org/authors/A5023888391",
+  "display_name": "Shili Xuezhe",
+  "works": [
+    {
+      "id": "https://openalex.org/works/W123",
+      "title": "Mapping Research Fronts",
+      "publication_year": 2019,
+      "doi": "10.1234/efg.2019.007",
+      "cited_by_count": 7,
+      "authors": ["Shili Xuezhe", "Coauthor B"]
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+﻿reject_id,scholar_id,object_type,identifier,title,reason,evidence,status,notes
+X001,example_scholar,paper,10.1234/fake.2020.001,档案保护技术研究,同名不同人,作者单位为另一高校，研究方向为档案保护。,rejected,

@@ -1,0 +1,4 @@
+﻿career_id,scholar_id,start,end,institution,department,degree_or_role,advisor,source_id,excerpt,status,notes
+C001,example_scholar,,1997,示例大学,信息管理,博士,导师范,S001,1997年获示例大学信息管理专业博士学位。,confirmed,入学年未载，不倒推
+C002,example_scholar,1998,至今,示例大学,信息管理学院,教授,,S001,1998年起在示例大学信息管理学院任教，现为教授。,confirmed,
+C003,example_scholar,2018,,示例研究院,,兼任研究员,,S006,2018年受聘示例研究院首批兼任研究员。,confirmed,受聘事件；是否仍在任未载，不延伸至今

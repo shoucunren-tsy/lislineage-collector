@@ -1,0 +1,21 @@
+{
+  "contract_version": "1.0.0",
+  "batch": "待填写",
+  "collector": "待填写",
+  "scholar_id": "待填写",
+  "scholar_name": "待填写",
+  "submitted_at": "待填写",
+  "coverage": {
+    "papers_cn": "C",
+    "papers_intl": "C",
+    "career": "C",
+    "activities": "C",
+    "relations": "C",
+    "books": "C"
+  },
+  "boundaries": [
+    "待填写：写清实际受限的渠道与未覆盖范围"
+  ],
+  "gaps": [],
+  "files": []
+}

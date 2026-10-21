@@ -1,0 +1,1422 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>图情谱系采集包自查</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+         margin: 0; padding: 32px; background: #f6f7f9; color: #1f2328; line-height: 1.6; }
+  main { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  .sub { color: #667085; margin: 0 0 24px; }
+  #drop { border: 2px dashed #b6c2d2; border-radius: 12px; background: #fff;
+          padding: 40px 24px; text-align: center; color: #5b6b82; transition: .15s; }
+  #drop.hot { border-color: #2f6feb; background: #f0f5ff; color: #2f6feb; }
+  #drop strong { display: block; font-size: 16px; margin-bottom: 6px; color: #1f2328; }
+  button { margin-top: 14px; padding: 8px 18px; border: 0; border-radius: 8px;
+           background: #2f6feb; color: #fff; font-size: 14px; cursor: pointer; }
+  button:hover { background: #2558c4; }
+  #summary { margin: 24px 0 8px; font-size: 15px; }
+  .scholar { background: #fff; border-radius: 10px; padding: 18px 20px;
+             margin: 14px 0; box-shadow: 0 1px 3px rgba(16,24,40,.08); }
+  .scholar h2 { font-size: 16px; margin: 0 0 8px; }
+  .ok { color: #0f7b3e; }
+  .bad { color: #b42318; }
+  .warn { color: #b54708; }
+  ul { margin: 8px 0 0; padding-left: 20px; }
+  li { margin: 3px 0; font-size: 14px; }
+  code { background: #f1f3f6; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .meta { color: #667085; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>图情谱系采集包自查</h1>
+  <p class="sub">离线检查目录结构、字段、来源引用、被引口径与边界表述。最终以维护者运行 <code>validate_package.py</code> 为准。</p>
+  <div id="drop">
+    <strong>把批次文件夹或单个学者文件夹拖到这里</strong>
+    支持 Chrome / Edge。也可以点下面的按钮选择文件夹。
+    <div><button id="pick">选择文件夹</button></div>
+    <input type="file" id="picker" webkitdirectory multiple hidden>
+  </div>
+  <div id="summary"></div>
+  <div id="out"></div>
+</main>
+<script>
+const SCHEMA = {
+  "files": {
+    "profile.csv": {
+      "columns": [
+        {
+          "name": "scholar_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "name_cn",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "name_en",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "name_variants",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "institution",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "department",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "role",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "research_fields",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "homepage",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "orcid",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "openalex_id",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "intro_zh",
+          "required": false,
+          "enum": null
+        }
+      ]
+    },
+    "sources.csv": {
+      "columns": [
+        {
+          "name": "source_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "source_type",
+          "required": true,
+          "enum": "source_type"
+        },
+        {
+          "name": "source_tier",
+          "required": true,
+          "enum": "source_tier"
+        },
+        {
+          "name": "title",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "publisher",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "url",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "accessed_at",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "snapshot",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "notes",
+          "required": false,
+          "enum": null
+        }
+      ]
+    },
+    "career.csv": {
+      "columns": [
+        {
+          "name": "career_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "scholar_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "start",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "end",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "institution",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "department",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "degree_or_role",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "advisor",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "source_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "excerpt",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "required": true,
+          "enum": "career_status"
+        },
+        {
+          "name": "notes",
+          "required": false,
+          "enum": null
+        }
+      ]
+    },
+    "papers_cn.csv": {
+      "columns": [
+        {
+          "name": "paper_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "scholar_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "title",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "authors",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "journal",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "year",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "volume",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "issue",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "pages",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "doi",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "url",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "db_source",
+          "required": true,
+          "enum": "paper_db"
+        },
+        {
+          "name": "source_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "excerpt",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "cited",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "cited_source",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "cited_url",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "cited_date",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "cited_status",
+          "required": true,
+          "enum": "cited_status"
+        },
+        {
+          "name": "action",
+          "required": true,
+          "enum": "paper_action"
+        },
+        {
+          "name": "notes",
+          "required": false,
+          "enum": null
+        }
+      ]
+    },
+    "papers_intl.csv": {
+      "columns": [
+        {
+          "name": "paper_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "scholar_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "title",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "authors",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "venue",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "venue_type",
+          "required": true,
+          "enum": "venue_type"
+        },
+        {
+          "name": "language",
+          "required": true,
+          "enum": "language"
+        },
+        {
+          "name": "year",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "volume",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "issue",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "pages",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "doi",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "url",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "db_source",
+          "required": true,
+          "enum": "paper_db"
+        },
+        {
+          "name": "source_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "excerpt",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "cited",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "cited_source",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "cited_url",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "cited_date",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "cited_status",
+          "required": true,
+          "enum": "cited_status"
+        },
+        {
+          "name": "action",
+          "required": true,
+          "enum": "paper_action"
+        },
+        {
+          "name": "notes",
+          "required": false,
+          "enum": null
+        }
+      ]
+    },
+    "activities.csv": {
+      "columns": [
+        {
+          "name": "activity_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "scholar_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "date",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "type",
+          "required": true,
+          "enum": "activity_type"
+        },
+        {
+          "name": "title",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "organizer",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "location",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "account_name",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "article_title",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "article_url",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "source_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "excerpt",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "notes",
+          "required": false,
+          "enum": null
+        }
+      ]
+    },
+    "relations.csv": {
+      "columns": [
+        {
+          "name": "relation_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "scholar_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "other_name",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "other_scholar_id",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "relation_type",
+          "required": true,
+          "enum": "relation_type"
+        },
+        {
+          "name": "start",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "end",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "evidence_url",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "source_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "excerpt",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "notes",
+          "required": false,
+          "enum": null
+        }
+      ]
+    },
+    "books.csv": {
+      "columns": [
+        {
+          "name": "book_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "scholar_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "title",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "subtitle",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "publisher",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "year",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "isbn",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "role",
+          "required": true,
+          "enum": "book_role"
+        },
+        {
+          "name": "coauthors",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "source_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "excerpt",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "notes",
+          "required": false,
+          "enum": null
+        }
+      ]
+    },
+    "rejects.csv": {
+      "columns": [
+        {
+          "name": "reject_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "scholar_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "object_type",
+          "required": true,
+          "enum": "reject_object"
+        },
+        {
+          "name": "identifier",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "title",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "reason",
+          "required": true,
+          "enum": "reject_reason"
+        },
+        {
+          "name": "evidence",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "required": true,
+          "enum": "reject_status"
+        },
+        {
+          "name": "notes",
+          "required": false,
+          "enum": null
+        }
+      ]
+    },
+    "audit.csv": {
+      "columns": [
+        {
+          "name": "audit_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "scholar_id",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "dimension",
+          "required": true,
+          "enum": "audit_dimension"
+        },
+        {
+          "name": "channel",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "query",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "date",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "total",
+          "required": false,
+          "enum": null
+        },
+        {
+          "name": "returned",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "unique_ids",
+          "required": true,
+          "enum": null
+        },
+        {
+          "name": "last_page",
+          "required": true,
+          "enum": "boolean_text"
+        },
+        {
+          "name": "closure",
+          "required": true,
+          "enum": "audit_closure"
+        },
+        {
+          "name": "note",
+          "required": false,
+          "enum": null
+        }
+      ]
+    }
+  },
+  "enums": {
+    "source_type": [
+      "官方主页",
+      "院系页",
+      "个人主页",
+      "ORCID",
+      "OpenAlex",
+      "Crossref",
+      "期刊官网",
+      "数据库",
+      "新闻",
+      "微信公众号",
+      "会议官网",
+      "学位论文库",
+      "出版社",
+      "其他"
+    ],
+    "source_tier": [
+      "一手",
+      "二手"
+    ],
+    "career_status": [
+      "confirmed",
+      "candidate",
+      "unknown"
+    ],
+    "paper_action": [
+      "new",
+      "correction"
+    ],
+    "paper_db": [
+      "期刊官网",
+      "知网",
+      "万方",
+      "维普",
+      "国家哲学社会科学文献中心",
+      "OpenAlex",
+      "Crossref",
+      "会议官网",
+      "出版社",
+      "其他"
+    ],
+    "venue_type": [
+      "journal",
+      "conference",
+      "book_chapter",
+      "preprint"
+    ],
+    "language": [
+      "en",
+      "ja",
+      "ko",
+      "other"
+    ],
+    "cited_status": [
+      "verified",
+      "recorded_value",
+      "verified_zero",
+      "unknown",
+      "blocked"
+    ],
+    "activity_type": [
+      "讲座",
+      "会议",
+      "获奖",
+      "评审",
+      "任职",
+      "访谈",
+      "悼念",
+      "学科建设",
+      "培训",
+      "其他"
+    ],
+    "relation_type": [
+      "博士师承",
+      "硕士师承",
+      "博士后",
+      "合著",
+      "同事",
+      "其他"
+    ],
+    "book_role": [
+      "独著",
+      "第一作者",
+      "合著",
+      "主编",
+      "副主编",
+      "参编",
+      "译著",
+      "章节"
+    ],
+    "reject_object": [
+      "paper",
+      "career",
+      "activity",
+      "relation",
+      "book",
+      "profile"
+    ],
+    "reject_reason": [
+      "同名不同人",
+      "导师署名误挂",
+      "媒体稿非论文",
+      "连载拆分",
+      "书籍章节重复计算",
+      "作者列表无本人",
+      "聚合页无原始出处",
+      "主题不符",
+      "身份未确认",
+      "其他"
+    ],
+    "reject_status": [
+      "rejected",
+      "pending"
+    ],
+    "audit_dimension": [
+      "papers_cn",
+      "papers_intl",
+      "career",
+      "activities",
+      "relations",
+      "books"
+    ],
+    "audit_closure": [
+      "closed",
+      "open"
+    ],
+    "boolean_text": [
+      "true",
+      "false"
+    ],
+    "coverage_level": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  "required_files": [
+    "profile.csv",
+    "sources.csv",
+    "career.csv",
+    "papers_cn.csv",
+    "papers_intl.csv",
+    "activities.csv",
+    "relations.csv",
+    "books.csv",
+    "rejects.csv",
+    "audit.csv",
+    "manifest.json",
+    "report.md",
+    "evidence"
+  ],
+  "manifest": {
+    "required_keys": [
+      "contract_version",
+      "batch",
+      "collector",
+      "scholar_id",
+      "scholar_name",
+      "submitted_at",
+      "coverage",
+      "boundaries",
+      "gaps",
+      "files"
+    ],
+    "coverage_keys": [
+      "papers_cn",
+      "papers_intl",
+      "career",
+      "activities",
+      "relations",
+      "books"
+    ]
+  },
+  "forbidden_claims": [
+    "全部收齐",
+    "已收齐",
+    "收齐",
+    "穷尽",
+    "完整收录",
+    "无遗漏",
+    "一网打尽",
+    "全部收录",
+    "应收尽收",
+    "完整覆盖",
+    "全部找齐",
+    "无一遗漏"
+  ],
+  "negation_markers": [
+    "不",
+    "未",
+    "无",
+    "非",
+    "没",
+    "勿",
+    "禁",
+    "避免",
+    "谈不上",
+    "算不上",
+    "不敢",
+    "无法",
+    "难以"
+  ],
+  "placeholder_values": [
+    "待填写",
+    "TODO",
+    "todo",
+    "xxx",
+    "XXX",
+    "示例填写",
+    "待补"
+  ]
+};
+
+const LEVEL_ERROR = "错误";
+const LEVEL_WARN = "警告";
+
+function isInt(v) { return /^\d+$/.test((v || "").trim()); }
+function validDate(v, until) {
+  v = (v || "").trim();
+  if (until && v === "至今") return true;
+  if (!/^\d{4}(-\d{2}(-\d{2})?)?$/.test(v)) return false;
+  const p = v.split("-").map(Number);
+  const d = new Date(p[0], (p[1] || 1) - 1, p[2] || 1);
+  return d.getFullYear() === p[0] && d.getMonth() === (p[1] || 1) - 1 && d.getDate() === (p[2] || 1)
+    && p[0] >= 1900 && p[0] <= 2100;
+}
+function normName(s) { return (s || "").toLowerCase().replace(/[\s.\-·,，、;；:：'"()（）]/g, ""); }
+function normText(s) { return (s || "").replace(/\s+/g, "").toLowerCase(); }
+function stripTags(s) {
+  return s.replace(/<\s*(script|style)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi, " ")
+          .replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&")
+          .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+}
+
+function parseCsv(text) {
+  const rows = []; let row = []; let cell = ""; let q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else { q = false; } }
+      else { cell += c; }
+    } else if (c === '"') { q = true; }
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n") { row.push(cell); rows.push(row); row = []; cell = ""; }
+    else if (c !== "\r") { cell += c; }
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows.map(r => r.map(x => x.trim()));
+}
+
+async function readUtf8(file) {
+  const buf = await file.arrayBuffer();
+  try { return { text: new TextDecoder("utf-8", { fatal: true }).decode(buf), ok: true }; }
+  catch (e) { return { text: "", ok: false }; }
+}
+
+function issue(iss, level, file, row, field, msg) { iss.push({ level, file, row, field, msg }); }
+function err(iss, file, row, field, msg) { issue(iss, LEVEL_ERROR, file, row, field, msg); }
+function warn(iss, file, row, field, msg) { issue(iss, LEVEL_WARN, file, row, field, msg); }
+
+async function loadTable(map, dir, fname, spec, iss) {
+  const path = dir + "/" + fname;
+  if (!map.has(path)) { err(iss, fname, 0, "", "缺少必需文件/目录"); return []; }
+  const r = await readUtf8(map.get(path));
+  if (!r.ok) { err(iss, fname, 0, "", "编码不是 UTF-8，请另存为「CSV UTF-8」"); return []; }
+  if (!r.text.trim()) { err(iss, fname, 0, "", "空文件（至少保留表头）"); return []; }
+  const rows = parseCsv(r.text);
+  if (!rows.length) { err(iss, fname, 0, "", "文件没有内容"); return []; }
+  const expected = spec.columns.map(c => c.name);
+  const header = rows[0];
+  if (header.join(String.fromCharCode(1)) !== expected.join(String.fromCharCode(1))) {
+    const missing = expected.filter(c => !header.includes(c));
+    const extra = header.filter(c => !expected.includes(c));
+    let msg = "表头与契约不一致";
+    if (missing.length) msg += "；缺少列: " + missing.join(", ");
+    if (extra.length) msg += "；多余列: " + extra.join(", ");
+    if (!missing.length && !extra.length) msg += "；列顺序被改动";
+    err(iss, fname, 1, "", msg);
+  }
+  const idx = {}; header.forEach((h, i) => idx[h] = i);
+  const out = [];
+  for (let i = 1; i < rows.length; i++) {
+    if (rows[i].every(x => !x)) continue;
+    const data = {};
+    expected.forEach(n => { const j = idx[n]; data[n] = j === undefined ? "" : (rows[i][j] || ""); });
+    out.push({ row: i + 1, data });
+  }
+  return out;
+}
+
+function authorsContain(authors, names) {
+  if (!authors) return false;
+  const tokens = authors.split(/[|;；]/).map(normName).filter(Boolean);
+  for (const name of names) {
+    const nn = normName(name);
+    if (!nn) continue;
+    for (let t of tokens) { t = t.replace(/等$/, ""); if (t === nn) return true; }
+    if (/[a-z]/.test(nn) && normName(authors).includes(nn)) return true;
+  }
+  return false;
+}
+
+function scanClaims(text, iss, file, row, field) {
+  if (!text) return;
+  const phrases = [...SCHEMA.forbidden_claims].sort((a, b) => b.length - a.length);
+  const mask = new Array(text.length).fill(false);
+  for (const ph of phrases) {
+    let i = 0;
+    while (true) {
+      i = text.indexOf(ph, i);
+      if (i < 0) break;
+      const e = i + ph.length;
+      if (mask.slice(i, e).some(Boolean)) { i = e; continue; }
+      // 只看同一句/同一单元格，避免上一行的否定词误救下一行的绝对化表述
+      const pre = (text.slice(0, i).match(/[^\n\r。！？；;|，,]*$/) || [""])[0].slice(-20);
+      if (!SCHEMA.negation_markers.some(n => pre.includes(n))) {
+        err(iss, file, row, field, "出现绝对化表述「" + ph + "」，请改写为有边界的描述");
+      }
+      for (let k = i; k < e; k++) mask[k] = true;
+      i = e;
+    }
+  }
+}
+
+function esc(v) {
+  return String(v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function isPlaceholder(v) {
+  return typeof v === "string" && SCHEMA.placeholder_values.some(p => v.includes(p));
+}
+
+async function validateScholar(map, dir, iss) {
+  const tables = {};
+  for (const [fname, spec] of Object.entries(SCHEMA.files)) {
+    tables[fname] = await loadTable(map, dir, fname, spec, iss);
+  }
+  for (const name of SCHEMA.required_files) {
+    if (name === "evidence" || name.endsWith(".csv")) continue;
+    if (!map.has(dir + "/" + name)) err(iss, name, 0, "", "缺少必需文件/目录");
+  }
+
+  // manifest
+  let manifest = {};
+  if (map.has(dir + "/manifest.json")) {
+    const r = await readUtf8(map.get(dir + "/manifest.json"));
+    try { manifest = JSON.parse(r.text.replace(/^﻿/, "")); }
+    catch (e) { err(iss, "manifest.json", 0, "", "JSON 解析失败: " + e.message); }
+  }
+  for (const key of SCHEMA.manifest.required_keys) {
+    if (!(key in manifest)) err(iss, "manifest.json", 0, key, "缺少字段");
+  }
+  const sid = manifest.scholar_id || "";
+  const dirName = dir.split("/").pop();
+  if (sid && sid !== dirName) err(iss, "manifest.json", 0, "scholar_id", "与文件夹名不一致");
+  if (!sid) err(iss, "manifest.json", 0, "scholar_id", "必填");
+  if (isPlaceholder(manifest.batch) || isPlaceholder(manifest.collector) || isPlaceholder(manifest.scholar_name)) {
+    err(iss, "manifest.json", 0, "", "批次/采集人/学者姓名仍为占位内容");
+  }
+  if (!validDate(String(manifest.submitted_at || "")) || String(manifest.submitted_at || "").length !== 10) {
+    err(iss, "manifest.json", 0, "submitted_at", "应为 YYYY-MM-DD");
+  }
+  const cov = manifest.coverage || {};
+  for (const key of SCHEMA.manifest.coverage_keys) {
+    if (!(key in cov)) err(iss, "manifest.json", 0, "coverage", "缺少维度 " + key);
+    else if (!SCHEMA.enums.coverage_level.includes(cov[key])) {
+      err(iss, "manifest.json", 0, "coverage." + key, "取值应为 A/B/C");
+    }
+  }
+  const boundaries = manifest.boundaries;
+  if (!Array.isArray(boundaries) || !boundaries.length) {
+    err(iss, "manifest.json", 0, "boundaries", "至少写 1 条边界，不能为空");
+  } else {
+    boundaries.forEach((b, i) => {
+      if (typeof b !== "string" || b.trim().length < 8) err(iss, "manifest.json", 0, "boundaries[" + (i + 1) + "]", "内容过短或为空");
+      else if (isPlaceholder(b)) err(iss, "manifest.json", 0, "boundaries[" + (i + 1) + "]", "仍为占位内容");
+    });
+  }
+
+  // profile
+  const profiles = tables["profile.csv"] || [];
+  if (profiles.length !== 1) err(iss, "profile.csv", 0, "", "必须有且只有 1 行数据，实际 " + profiles.length + " 行");
+  const names = new Set();
+  if (profiles.length) {
+    const p = profiles[0].data;
+    if (p.scholar_id !== dirName) err(iss, "profile.csv", 2, "scholar_id", "必须等于文件夹名 " + dirName);
+    [p.name_cn, p.name_en, ...(p.name_variants || "").split(/[|、;；]/)].forEach(n => { if (n && n.trim()) names.add(n.trim()); });
+  }
+
+  // enums + required + scholar_id
+  const special = new Set(["career.csv|source_id", "career.csv|excerpt", "papers_cn.csv|year", "papers_intl.csv|year"]);
+  for (const [fname, spec] of Object.entries(SCHEMA.files)) {
+    for (const item of tables[fname] || []) {
+      const row = item.data;
+      for (const col of spec.columns) {
+        const v = row[col.name] || "";
+        if (col.required && !v && !special.has(fname + "|" + col.name)) {
+          err(iss, fname, item.row, col.name, "必填字段为空");
+        }
+        if (v && col.enum && !SCHEMA.enums[col.enum].includes(v)) {
+          err(iss, fname, item.row, col.name, "取值不合法：" + v);
+        }
+      }
+      if ("scholar_id" in row && row.scholar_id !== dirName) {
+        err(iss, fname, item.row, "scholar_id", "必须等于文件夹名 " + dirName);
+      }
+      if ("notes" in row) scanClaims(row.notes, iss, fname, item.row, "notes");
+    }
+  }
+  if (profiles.length) scanClaims(profiles[0].data.intro_zh, iss, "profile.csv", 2, "intro_zh");
+
+  // sources
+  const tiers = {}, snaps = {};
+  const sources = (tables["sources.csv"] || []).map(x => x.data);
+  const seenSid = new Set();
+  (tables["sources.csv"] || []).forEach(item => {
+    const row = item.data;
+    if (!/^S\d{3,}$/i.test(row.source_id)) err(iss, "sources.csv", item.row, "source_id", "应为 S001 这类编号");
+    if (seenSid.has(row.source_id)) err(iss, "sources.csv", item.row, "source_id", "编号重复");
+    seenSid.add(row.source_id);
+    tiers[row.source_id] = row.source_tier;
+    if (row.snapshot) {
+      if (!map.has(dir + "/" + row.snapshot)) err(iss, "sources.csv", item.row, "snapshot", "快照文件不存在: " + row.snapshot);
+      else snaps[row.source_id] = dir + "/" + row.snapshot;
+    }
+    if (row.url && !/^https?:\/\//i.test(row.url)) warn(iss, "sources.csv", item.row, "url", "不是 http/https URL");
+    if (row.accessed_at && !validDate(row.accessed_at)) err(iss, "sources.csv", item.row, "accessed_at", "应为 YYYY-MM-DD");
+  });
+
+  // 引用 + 论文 + 履历 + 活动 + 关系 + 著作
+  const used = new Set();
+  for (const fname of ["career.csv", "papers_cn.csv", "papers_intl.csv", "activities.csv", "relations.csv", "books.csv"]) {
+    for (const item of tables[fname] || []) {
+      const row = item.data;
+      if (row.source_id) {
+        used.add(row.source_id);
+        if (!(row.source_id in tiers)) err(iss, fname, item.row, "source_id", "来源表中不存在 " + row.source_id);
+      }
+    }
+  }
+  Object.keys(tiers).forEach(sid2 => { if (!used.has(sid2)) warn(iss, "sources.csv", 0, sid2, "来源已登记但未被任何记录引用"); });
+
+  const titles = {};
+  for (const fname of ["papers_cn.csv", "papers_intl.csv"]) {
+    for (const item of tables[fname] || []) {
+      const row = item.data;
+      if (!row.year) {
+        if (!/^缺年[:：]/.test(row.notes || "")) err(iss, fname, item.row, "year", "必填；确实无年份时请在 notes 以「缺年:」开头说明");
+      } else if (!/^\d{4}$/.test(row.year) || +row.year < 1900 || +row.year > new Date().getFullYear() + 1) {
+        err(iss, fname, item.row, "year", "应为四位年份");
+      }
+      if (row.doi && !/^10\.\d{4,9}\/\S+/i.test(row.doi)) warn(iss, fname, item.row, "doi", "不像标准 DOI");
+      if (!authorsContain(row.authors, names)) {
+        err(iss, fname, item.row, "authors", "作者列表中没有本学者，请核对归属；若为姓名写法差异，补进 profile.name_variants");
+      }
+      const key = normText(row.title) + "|" + (row.year || "");
+      if (normText(row.title)) {
+        if (titles[key]) err(iss, fname, item.row, "title", "同题同年重复");
+        else titles[key] = true;
+      }
+      const st = row.cited_status, cited = row.cited || "";
+      if (st === "unknown" || st === "blocked") {
+        if (cited) err(iss, fname, item.row, "cited", "状态为 " + st + " 时必须留空，不能写 " + cited);
+      } else if (["verified", "recorded_value", "verified_zero"].includes(st)) {
+        if (!isInt(cited)) err(iss, fname, item.row, "cited", "状态为 " + st + " 时必须是整数");
+        else if (st === "verified_zero" && cited !== "0") err(iss, fname, item.row, "cited", "verified_zero 必须为 0");
+        else if (st !== "verified_zero" && cited === "0") err(iss, fname, item.row, "cited", "0 只能用于 verified_zero（页面明确显示 0）");
+        if (!row.cited_source) err(iss, fname, item.row, "cited_source", "有被引数值时必须写数据来源");
+        if (!row.cited_date || !validDate(row.cited_date)) err(iss, fname, item.row, "cited_date", "应为 YYYY-MM-DD");
+      }
+    }
+  }
+
+  for (const item of tables["career.csv"] || []) {
+    const row = item.data;
+    if (row.status === "unknown") {
+      if (!row.notes) warn(iss, "career.csv", item.row, "notes", "status=unknown 应说明查过哪些渠道");
+    } else {
+      if (!row.source_id) err(iss, "career.csv", item.row, "source_id", "必填");
+      if (!row.excerpt || row.excerpt.length < 6) err(iss, "career.csv", item.row, "excerpt", "必填，且至少 6 个字符");
+      if (row.status === "confirmed" && tiers[row.source_id] === "二手") {
+        warn(iss, "career.csv", item.row, "status", "confirmed 只依据二手来源，建议降为 candidate 或补一手来源");
+      }
+    }
+    for (const col of ["start", "end"]) {
+      if (row[col] && !validDate(row[col], true)) err(iss, "career.csv", item.row, col, "格式应为 YYYY / YYYY-MM / YYYY-MM-DD / 至今");
+    }
+    if (row.start && row.end && row.end !== "至今" && validDate(row.start) && validDate(row.end)) {
+      const a = row.start.split("-").map(Number), b = row.end.split("-").map(Number);
+      if (a[0] > b[0] || (a[0] === b[0] && (a[1] || 1) > (b[1] || 12))) {
+        err(iss, "career.csv", item.row, "start", "开始时间晚于结束时间");
+      }
+    }
+  }
+
+  for (const item of tables["activities.csv"] || []) {
+    const row = item.data;
+    if (row.date && !validDate(row.date)) err(iss, "activities.csv", item.row, "date", "格式应为 YYYY-MM-DD，可降级到月/年");
+    if (!row.excerpt || row.excerpt.length < 6) err(iss, "activities.csv", item.row, "excerpt", "必填，且至少 6 个字符");
+  }
+  for (const item of tables["relations.csv"] || []) {
+    if (!item.data.excerpt || item.data.excerpt.length < 6) err(iss, "relations.csv", item.row, "excerpt", "必填，且至少 6 个字符");
+  }
+  for (const item of tables["books.csv"] || []) {
+    if (!item.data.excerpt || item.data.excerpt.length < 6) err(iss, "books.csv", item.row, "excerpt", "必填，且至少 6 个字符");
+    if (item.data.year && !/^\d{4}$/.test(item.data.year)) err(iss, "books.csv", item.row, "year", "应为四位年份");
+  }
+  for (const item of tables["rejects.csv"] || []) {
+    if (!item.data.reason) err(iss, "rejects.csv", item.row, "reason", "必填");
+    if (!item.data.evidence) err(iss, "rejects.csv", item.row, "evidence", "必填，写排除依据");
+  }
+
+  // audit
+  const closed = new Set(), open = new Set();
+  for (const item of tables["audit.csv"] || []) {
+    const row = item.data;
+    for (const col of ["returned", "unique_ids"]) {
+      if (!isInt(row[col])) err(iss, "audit.csv", item.row, col, "必须是非负整数");
+    }
+    if (row.total && !isInt(row.total)) err(iss, "audit.csv", item.row, "total", "必须是整数或留空");
+    if (row.date && !validDate(row.date)) err(iss, "audit.csv", item.row, "date", "应为 YYYY-MM-DD");
+    if (row.closure === "closed") {
+      closed.add(row.dimension);
+      if (row.last_page !== "true") err(iss, "audit.csv", item.row, "last_page", "closed 必须 last_page=true");
+      if (row.returned !== row.unique_ids) err(iss, "audit.csv", item.row, "unique_ids", "closed 要求 returned = unique_ids");
+      if (row.total && row.total !== row.returned) err(iss, "audit.csv", item.row, "total", "closed 要求 total = returned");
+    } else if (row.closure === "open") {
+      open.add(row.dimension);
+      if (!row.note || row.note.length < 6) err(iss, "audit.csv", item.row, "note", "closure=open 必须写明未闭合原因");
+    }
+  }
+
+  // coverage
+  const tableOf = { papers_cn: "papers_cn.csv", papers_intl: "papers_intl.csv", career: "career.csv", activities: "activities.csv", relations: "relations.csv", books: "books.csv" };
+  for (const [dim, level] of Object.entries(cov)) {
+    if (!tableOf[dim] || !["A", "B"].includes(level)) continue;
+    const n = (tables[tableOf[dim]] || []).length;
+    if (n === 0) {
+      if (level === "A") err(iss, "manifest.json", 0, "coverage." + dim, "评为 A 但该维度没有任何记录");
+      else warn(iss, "manifest.json", 0, "coverage." + dim, "评为 B 但该维度没有任何记录");
+    }
+    if (level === "A") {
+      if (open.has(dim)) err(iss, "manifest.json", 0, "coverage." + dim, "存在未闭合审计，不能评 A");
+      if (!closed.has(dim)) err(iss, "manifest.json", 0, "coverage." + dim, "评 A 需要至少一条 closure=closed 的审计");
+    }
+  }
+
+  // report
+  if (map.has(dir + "/report.md")) {
+    const r = await readUtf8(map.get(dir + "/report.md"));
+    if (r.text.length < 200) err(iss, "report.md", 0, "", "内容过短，至少 200 字");
+    if (!r.text.includes("边界与缺口")) err(iss, "report.md", 0, "", "缺少「边界与缺口」小节");
+    if (/\{\{[^}]+\}\}/.test(r.text)) err(iss, "report.md", 0, "", "仍有 {{占位符}} 未替换");
+    scanClaims(r.text, iss, "report.md", 0, "");
+  }
+
+  // 摘录 vs 快照
+  const cache = {};
+  for (const fname of ["career.csv", "papers_cn.csv", "papers_intl.csv", "activities.csv", "relations.csv", "books.csv"]) {
+    for (const item of tables[fname] || []) {
+      const row = item.data, sid2 = row.source_id, ex = row.excerpt;
+      if (!sid2 || !ex || ex.length < 6 || !snaps[sid2]) continue;
+      const ext = snaps[sid2].split(".").pop().toLowerCase();
+      if (!["html", "htm", "txt", "md", "json", "xml"].includes(ext)) continue;
+      if (!(sid2 in cache)) {
+        const r = await readUtf8(map.get(snaps[sid2]));
+        cache[sid2] = normText(stripTags(r.text));
+      }
+      if (cache[sid2] && !cache[sid2].includes(normText(ex))) {
+        warn(iss, fname, item.row, "excerpt", "摘录未在快照中找到（快照可能只含首屏，或摘录非逐字）");
+      }
+    }
+  }
+}
+
+async function walkEntry(entry, prefix, map) {
+  if (entry.isFile) {
+    const file = await new Promise((res, rej) => entry.file(res, rej));
+    map.set(prefix + entry.name, file);
+  } else if (entry.isDirectory) {
+    const reader = entry.createReader();
+    while (true) {
+      const batch = await new Promise((res, rej) => reader.readEntries(res, rej));
+      if (!batch.length) break;
+      for (const e of batch) await walkEntry(e, prefix + entry.name + "/", map);
+    }
+  }
+}
+
+function render(results) {
+  const out = document.getElementById("out");
+  const summary = document.getElementById("summary");
+  let errors = 0, warnings = 0;
+  results.forEach(r => { errors += r.errors; warnings += r.warnings; });
+  summary.innerHTML = errors === 0
+    ? '<span class="ok">自查通过</span>：错误 0 · 警告 ' + warnings + "。最终以维护者脚本为准。"
+    : '<span class="bad">未通过</span>：错误 ' + errors + " · 警告 " + warnings + "。";
+  out.innerHTML = results.map(r => {
+    const items = r.issues.length
+      ? "<ul>" + r.issues.map(i => {
+          const loc = esc(i.file + (i.row ? " 第" + i.row + "行" : "") + (i.field ? " · " + i.field : ""));
+          const cls = i.level === LEVEL_ERROR ? "bad" : "warn";
+          return '<li class="' + cls + '">[' + i.level + "] " + loc + "：" + esc(i.msg) + "</li>";
+        }).join("") + "</ul>"
+      : '<p class="ok">没有发现问题。</p>';
+    return '<section class="scholar"><h2>' + esc(r.dir) + '</h2><p class="meta">错误 ' + r.errors + " · 警告 " + r.warnings + "</p>" + items + "</section>";
+  }).join("");
+}
+
+async function run(map) {
+  const dirs = new Set();
+  for (const p of map.keys()) {
+    if (p.endsWith("/manifest.json")) dirs.add(p.slice(0, -"/manifest.json".length));
+  }
+  const valid = [...dirs].filter(d => map.has(d + "/profile.csv"));
+  if (!valid.length) {
+    document.getElementById("summary").innerHTML =
+      '<span class="bad">没有找到学者目录</span>：需要包含 manifest.json 与 profile.csv 的文件夹。';
+    document.getElementById("out").innerHTML = "";
+    return;
+  }
+  const results = [];
+  for (const dir of valid) {
+    const iss = [];
+    try { await validateScholar(map, dir, iss); }
+    catch (e) { err(iss, "", 0, "", "检查过程出错: " + e.message); }
+    results.push({
+      dir,
+      issues: iss,
+      errors: iss.filter(i => i.level === LEVEL_ERROR).length,
+      warnings: iss.filter(i => i.level === LEVEL_WARN).length,
+    });
+  }
+  render(results);
+}
+
+const drop = document.getElementById("drop");
+const picker = document.getElementById("picker");
+document.getElementById("pick").addEventListener("click", () => picker.click());
+picker.addEventListener("change", async () => {
+  const map = new Map();
+  for (const f of picker.files) map.set(f.webkitRelativePath || f.name, f);
+  await run(map);
+});
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("hot"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("hot"); }));
+drop.addEventListener("drop", async e => {
+  const items = [...(e.dataTransfer.items || [])];
+  const map = new Map();
+  for (const item of items) {
+    const entry = item.webkitGetAsEntry && item.webkitGetAsEntry();
+    if (entry) await walkEntry(entry, "", map);
+  }
+  if (!map.size) {
+    for (const f of e.dataTransfer.files) map.set(f.name, f);
+  }
+  await run(map);
+});
+</script>
+</body>
+</html>

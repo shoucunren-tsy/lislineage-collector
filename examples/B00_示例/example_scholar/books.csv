@@ -1,0 +1,2 @@
+﻿book_id,scholar_id,title,subtitle,publisher,year,isbn,role,coauthors,source_id,excerpt,notes
+B001,example_scholar,示例专著,,示例大学出版社,2020,978-7-0000-0000-0,独著,,S005,示例大学出版社2020年版。,
