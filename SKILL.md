@@ -47,7 +47,7 @@ B01_张三/
 
 1. **每条事实都要有出处。** 出处写在 sources.csv，业务行用 `source_id` 引用，`excerpt` 填页面上能证明这条记录的原句，至少 6 个字。没有地址的「听说」「应该」不进表。
 2. **区分一手与二手。** 官网、期刊页、ORCID、OpenAlex 原始记录、会议官网 = 一手；百科、聚合站、转载新闻、公众号转述 = 二手。二手来源不能单独支撑 `career.status=confirmed`。
-3. **论文必须写清来源渠道。** `db_source` 填实际看到题录的地方（期刊官网 / 知网 / 万方 / OpenAlex / Crossref ...），不要写「网络」。
+3. **论文必须写清来源渠道。** `db_source` 填实际看到题录的地方（期刊官网 / 知网 / 万方 / OpenAlex / Crossref / arXiv / DOAJ / PubMed Central / 机构知识库 ...），不要写「网络」。
 4. **被引次数未知绝不填 0。** 页面打不开、被 WAF 挡、需要登录 → `cited_status=blocked` 或 `unknown`，`cited` 留空。只有页面上明确写 0 才用 `verified_zero`。
 5. **同名必须排除并留痕。** 查过但判定不是本人的，写进 rejects.csv，写清依据。宁可 pending，不可硬塞。
 6. **履历不靠学制倒推。** 官方只写博士毕业年，就只写毕业年；入学年查不到留空。受聘事件不要延伸到「至今」。

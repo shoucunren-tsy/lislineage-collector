@@ -51,7 +51,7 @@
 | snapshot | 否 | `evidence/S001.html`，相对本学者文件夹 |
 | notes | 否 | 403/WAF/需登录/语言/转载关系 |
 
-`source_type` 枚举：`官方主页`、`院系页`、`个人主页`、`ORCID`、`OpenAlex`、`Crossref`、`期刊官网`、`数据库`、`新闻`、`微信公众号`、`会议官网`、`学位论文库`、`出版社`、`其他`
+`source_type` 枚举：`官方主页`、`院系页`、`个人主页`、`ORCID`、`OpenAlex`、`Crossref`、`期刊官网`、`数据库`、`新闻`、`微信公众号`、`会议官网`、`学位论文库`、`出版社`、`arXiv`、`DOAJ`、`PubMed Central`、`机构知识库`、`开放获取仓储`、`其他`
 
 示例：
 
@@ -117,7 +117,7 @@ S002,OpenAlex,一手,Shili Xuezhe,OpenAlex,https://openalex.org/authors/A5023888
 | action | 是 | `new` / `correction` |
 | notes | 否 | 归属疑点、同名排除 |
 
-`db_source` 枚举：`期刊官网`、`知网`、`万方`、`维普`、`国家哲学社会科学文献中心`、`OpenAlex`、`Crossref`、`会议官网`、`出版社`、`其他`
+`db_source` 枚举：`期刊官网`、`知网`、`万方`、`维普`、`国家哲学社会科学文献中心`、`OpenAlex`、`Crossref`、`会议官网`、`出版社`、`arXiv`、`DOAJ`、`PubMed Central`、`机构知识库`、`开放获取仓储`、`其他`
 
 `cited_status` 口径：
 

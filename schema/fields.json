@@ -227,11 +227,11 @@
     }
   },
   "enums": {
-    "source_type": ["官方主页", "院系页", "个人主页", "ORCID", "OpenAlex", "Crossref", "期刊官网", "数据库", "新闻", "微信公众号", "会议官网", "学位论文库", "出版社", "其他"],
+    "source_type": ["官方主页", "院系页", "个人主页", "ORCID", "OpenAlex", "Crossref", "期刊官网", "数据库", "新闻", "微信公众号", "会议官网", "学位论文库", "出版社", "arXiv", "DOAJ", "PubMed Central", "机构知识库", "开放获取仓储", "其他"],
     "source_tier": ["一手", "二手"],
     "career_status": ["confirmed", "candidate", "unknown"],
     "paper_action": ["new", "correction"],
-    "paper_db": ["期刊官网", "知网", "万方", "维普", "国家哲学社会科学文献中心", "OpenAlex", "Crossref", "会议官网", "出版社", "其他"],
+    "paper_db": ["期刊官网", "知网", "万方", "维普", "国家哲学社会科学文献中心", "OpenAlex", "Crossref", "会议官网", "出版社", "arXiv", "DOAJ", "PubMed Central", "机构知识库", "开放获取仓储", "其他"],
     "venue_type": ["journal", "conference", "book_chapter", "preprint"],
     "language": ["en", "ja", "ko", "other"],
     "cited_status": ["verified", "recorded_value", "verified_zero", "unknown", "blocked"],
