@@ -275,9 +275,8 @@ class ScholarValidator:
                                                         self.schema["contract_version"]))
 
         sid = self.manifest.get("scholar_id", "")
-        if sid and sid != self.dir.name:
-            self.issues.error("manifest.json", 0, "scholar_id",
-                              "与文件夹名不一致（%s != %s）" % (sid, self.dir.name))
+        self.canonical_sid = sid
+        # 文件夹名可为 scholar_id 或中文人名（name_cn），二者择一即可
         if not sid:
             self.issues.error("manifest.json", 0, "scholar_id", "必填")
         elif not ID_RE.fullmatch(sid):
@@ -348,9 +347,15 @@ class ScholarValidator:
             if not rows:
                 return
         _, profile = rows[0]
-        if profile.get("scholar_id") != self.dir.name:
+        sid = profile.get("scholar_id", "") or getattr(self, "canonical_sid", "")
+        name_cn = (profile.get("name_cn", "") or "").strip()
+        if self.dir.name not in (sid, name_cn):
             self.issues.error("profile.csv", 2, "scholar_id",
-                              "必须等于文件夹名 %s" % self.dir.name)
+                              "文件夹名须为 scholar_id（%s）或中文人名（%s），实际 %s"
+                              % (sid, name_cn or "(空)", self.dir.name))
+        if sid and getattr(self, "canonical_sid", sid) and sid != self.canonical_sid:
+            self.issues.error("profile.csv", 2, "scholar_id",
+                              "与 manifest.json 不一致（%s != %s）" % (sid, self.canonical_sid))
         self.names = {profile.get("name_cn", ""), profile.get("name_en", "")}
         for variant in re.split(r"[|、;；]", profile.get("name_variants", "")):
             self.names.add(variant.strip())
@@ -385,7 +390,7 @@ class ScholarValidator:
                 else:
                     self.source_snapshots[sid] = snap
             url = row.get("url", "")
-            if url and not URL_RE.match(url):
+            if url and not URL_RE.match(url) and ("://" in url or url.lower().startswith("http")):
                 self.issues.warn("sources.csv", row_no, "url", "不是 http/https URL")
             if row.get("accessed_at") and not valid_date(row["accessed_at"]):
                 self.issues.error("sources.csv", row_no, "accessed_at",
@@ -393,20 +398,22 @@ class ScholarValidator:
 
     # -- scholar_id 一致性 --
     def check_scholar_ids(self):
+        expect = getattr(self, "canonical_sid", "") or self.dir.name
         for fname in ("career.csv", "papers_cn.csv", "papers_intl.csv",
                       "activities.csv", "relations.csv", "books.csv",
                       "rejects.csv", "audit.csv"):
             for row_no, row in self.tables.get(fname, []):
-                if row.get("scholar_id") != self.dir.name:
+                if row.get("scholar_id") != expect:
                     self.issues.error(fname, row_no, "scholar_id",
-                                      "必须等于文件夹名 %s，实际 %s"
-                                      % (self.dir.name, row.get("scholar_id", "")))
+                                      "必须等于 scholar_id %s，实际 %s"
+                                      % (expect, row.get("scholar_id", "")))
 
     # -- 必填与枚举 --
     def check_required_and_enums(self):
         special = {
             ("career.csv", "source_id"), ("career.csv", "excerpt"),
             ("papers_cn.csv", "year"), ("papers_intl.csv", "year"),
+            ("activities.csv", "date"),
         }
         enums = self.schema["enums"]
         for fname, spec in self.schema["files"].items():
@@ -429,7 +436,8 @@ class ScholarValidator:
     def check_source_refs(self):
         used = set()
         for fname in ("career.csv", "papers_cn.csv", "papers_intl.csv",
-                      "activities.csv", "relations.csv", "books.csv"):
+                      "activities.csv", "relations.csv", "books.csv",
+                      "rejects.csv"):
             for row_no, row in self.tables.get(fname, []):
                 sid = row.get("source_id", "")
                 if not sid:
@@ -550,7 +558,13 @@ class ScholarValidator:
     # -- 活动 --
     def check_activities(self):
         for row_no, row in self.tables.get("activities.csv", []):
-            if row.get("date") and not valid_date(row["date"]):
+            date_v = row.get("date", "")
+            notes = row.get("notes", "")
+            if not date_v:
+                if not re.match(r"^缺日期[:：]", notes):
+                    self.issues.error("activities.csv", row_no, "date",
+                                      "必填；确实无日期时请在 notes 以「缺日期:」开头说明")
+            elif not valid_date(date_v):
                 self.issues.error("activities.csv", row_no, "date",
                                   "格式应为 YYYY-MM-DD，可降级到月/年")
             if row.get("article_url") and not URL_RE.match(row["article_url"]):

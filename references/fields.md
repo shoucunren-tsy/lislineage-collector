@@ -6,7 +6,7 @@
 
 - 空值就留空，不要写「无」「null」「-」「暂无」。确实需要说明的写进 `notes`。
 - 多个值用 `|` 分隔（作者、变体名、共同作者）。
-- 日期：`YYYY-MM-DD`；只能确定到月写 `YYYY-MM`；只能确定到年写 `YYYY`；在职写 `至今`。
+- 日期：`YYYY-MM-DD`；只能确定到月写 `YYYY-MM`；只能确定到年写 `YYYY`；在职写 `至今`。业务表日期/年份确实不可考时，留空并在 `notes` 以 `缺日期:` 或 `缺年:` 开头，**不得编造**。
 - 编号：`C001`、`P001`、`A001`、`R001`、`B001`、`X001`、`Q001`，在本学者文件夹内唯一，删行后不要重排。
 - `scholar_id` 在所有表里必须等于文件夹名。
 
@@ -46,7 +46,7 @@
 | source_tier | 是 | `一手` / `二手` |
 | title | 是 | 页面或文件标题，照抄 |
 | publisher | 否 | 发布方 |
-| url | 是 | 完整 http/https URL；纸质资料写馆藏描述 |
+| url | 是 | 完整 http/https URL；纸质/本地资料写馆藏或出处描述（非 URL 文本） |
 | accessed_at | 是 | 访问日期 `YYYY-MM-DD` |
 | snapshot | 否 | `evidence/S001.html`，相对本学者文件夹 |
 | notes | 否 | 403/WAF/需登录/语言/转载关系 |
@@ -155,7 +155,7 @@ S002,OpenAlex,一手,Shili Xuezhe,OpenAlex,https://openalex.org/authors/A5023888
 |---|---|---|
 | activity_id | 是 | `A001` 起 |
 | scholar_id | 是 | 等于文件夹名 |
-| date | 是 | 活动日期；可降级到月/年 |
+| date | 是 | 活动日期；可降级到月/年；确实无日期留空且 notes 以 `缺日期:` 开头 |
 | type | 是 | 见枚举 |
 | title | 是 | 活动名/报道标题 |
 | organizer | 否 | 主办方 |
@@ -233,6 +233,7 @@ S002,OpenAlex,一手,Shili Xuezhe,OpenAlex,https://openalex.org/authors/A5023888
 | reject_id | 是 | `X001` 起 |
 | scholar_id | 是 | 等于文件夹名 |
 | object_type | 是 | `paper`/`career`/`activity`/`relation`/`book`/`profile` |
+| source_id | 否 | 发现该排除项的来源，指向 sources.csv |
 | identifier | 是 | DOI/URL/年份+题名 |
 | title | 否 | 对象标题 |
 | reason | 是 | 见枚举 |

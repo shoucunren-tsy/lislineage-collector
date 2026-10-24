@@ -50,7 +50,7 @@
         {"name": "source_tier", "required": true, "enum": "source_tier", "desc": "一手=原始出处；二手=转载/聚合/百科"},
         {"name": "title", "required": true, "desc": "页面或文件标题，照抄原标题"},
         {"name": "publisher", "required": false, "desc": "发布方，如 中国人民大学信息资源管理学院"},
-        {"name": "url", "required": true, "desc": "可访问的完整 URL，http/https 开头；无 URL 的纸质资料写馆藏或出处描述"},
+        {"name": "url", "required": true, "desc": "可访问的完整 URL，http/https 开头；无 URL 的纸质/本地资料写馆藏或出处描述（非 URL 文本）"},
         {"name": "accessed_at", "required": true, "desc": "访问日期 YYYY-MM-DD"},
         {"name": "snapshot", "required": false, "desc": "证据快照相对路径，如 evidence/S001.html"},
         {"name": "notes", "required": false, "desc": "访问限制、页面语言、需登录等说明"}
@@ -140,7 +140,7 @@
       "columns": [
         {"name": "activity_id", "required": true, "desc": "A001 起唯一编号"},
         {"name": "scholar_id", "required": true, "desc": "必须与文件夹名一致"},
-        {"name": "date", "required": true, "desc": "活动日期 YYYY-MM-DD；只能确定到月/年时写 YYYY-MM / YYYY"},
+        {"name": "date", "required": true, "desc": "活动日期 YYYY-MM-DD；只能确定到月/年时写 YYYY-MM / YYYY；确实无日期时留空且 notes 以「缺日期:」开头"},
         {"name": "type", "required": true, "enum": "activity_type", "desc": "活动类型"},
         {"name": "title", "required": true, "desc": "活动名称，照抄报道标题或活动名"},
         {"name": "organizer", "required": false, "desc": "主办/承办方"},
@@ -198,6 +198,7 @@
         {"name": "reject_id", "required": true, "desc": "X001 起唯一编号"},
         {"name": "scholar_id", "required": true, "desc": "必须与文件夹名一致"},
         {"name": "object_type", "required": true, "enum": "reject_object", "desc": "被排除对象的类型"},
+        {"name": "source_id", "required": false, "desc": "发现该排除项的来源，指向 sources.csv"},
         {"name": "identifier", "required": true, "desc": "DOI/URL/年份+题名等可定位标识"},
         {"name": "title", "required": false, "desc": "对象标题"},
         {"name": "reason", "required": true, "enum": "reject_reason", "desc": "排除原因代码"},
